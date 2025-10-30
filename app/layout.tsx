@@ -10,7 +10,6 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Live Session - Video Streaming",
   description: "Interactive live streaming sessions with full video controls",
-  generator: "v0.app",
 }
 
 export default function RootLayout({
