@@ -1,0 +1,51 @@
+📹 Live Session App
+
+An interactive live video session platform built with Next.js, TypeScript, and MongoDB.
+Users can create live sessions, share unique links, and manage sessions in real-time.
+
+⚡ Tech Stack
+
+Next.js 14 (App Router)
+
+React 18 + TypeScript
+
+Tailwind CSS + Shadcn/UI + Framer Motion
+
+MongoDB (native driver)
+
+pnpm as the package manager
+
+🧩 Setup
+1. Clone the repository
+git clone https://github.com/<your-username>/live-session-app.git
+cd live-session-app
+
+2. Install dependencies
+pnpm install
+
+3. Create a .env.local file
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.ja1ydej.mongodb.net/
+
+4. Run the development server
+pnpm dev
+
+
+The app will start at 👉 http://localhost:3000
+
+✅ Test MongoDB Connection
+node --env-file=.env.local test-db-connection.mjs
+
+
+If successful:
+
+✅ Connected to MongoDB
+📦 Database: live_sessions
+
+🧾 License
+
+MIT License — feel free to use and modify.
+
+👨‍💻 Author
+
+Ruman Akhtar
+💼 Full Stack Developer
