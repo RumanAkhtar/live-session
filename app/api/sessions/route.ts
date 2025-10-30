@@ -14,17 +14,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique session ID
+    // Generate a unique session ID
     const uniqueId = randomUUID()
     const sessionUrl = `${userUrl}/session/${uniqueId}`
 
     const sessions = await getSessionsCollection()
 
-    // Create a new session document
     const sessionData = {
       type,
-      unique_id: uniqueId,
-      userurl: sessionUrl,
+      uniqueId, // ✅ consistent camelCase
+      userUrl: sessionUrl, // ✅ consistent camelCase
       createdAt: new Date(),
       updatedAt: new Date(),
       isActive: true,
@@ -61,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 
     const sessions = await getSessionsCollection()
-    const session = await sessions.findOne({ unique_id: uniqueId })
+    const session = await sessions.findOne({ uniqueId }) // ✅ matches POST
 
     if (!session) {
       return NextResponse.json(

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import { VideoPlayer } from "@/components/video-player"
 import { SessionManager } from "@/components/session-manager"
 import { AnimatedButton } from "@/components/button-animated"
@@ -33,36 +34,39 @@ export default function SessionPage() {
 
         if (data.success) {
           setSession(data.data)
-          // Determine user type - first visitor is admin, others are students
-          const storedType = localStorage.getItem(`session_${sessionId}_type`)
-          if (storedType) {
-            setUserType(storedType as "admin" | "student")
-          } else {
-            const type = data.data.type === "admin" ? "student" : "student"
-            localStorage.setItem(`session_${sessionId}_type`, type)
-            setUserType(type)
+
+          // Determine user type (safe for client-side only)
+          if (typeof window !== "undefined") {
+            const storedType = localStorage.getItem(`session_${sessionId}_type`)
+            if (storedType) {
+              setUserType(storedType as "admin" | "student")
+            } else {
+              // Default to "student" for all except creator
+              const type = data.data.type === "admin" ? "student" : "student"
+              localStorage.setItem(`session_${sessionId}_type`, type)
+              setUserType(type)
+            }
           }
         } else {
           setError("Session not found")
         }
       } catch (err) {
+        console.error("❌ Error fetching session:", err)
         setError("Failed to load session")
-        console.error(err)
       } finally {
         setLoading(false)
       }
     }
 
-    if (sessionId) {
-      fetchSession()
-    }
+    if (sessionId) fetchSession()
   }, [sessionId])
 
+  // --- Loading State ---
   if (loading) {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-background flex items-center justify-center">
+        <main className="min-h-screen flex items-center justify-center bg-background">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
@@ -74,11 +78,12 @@ export default function SessionPage() {
     )
   }
 
+  // --- Error State ---
   if (error || !session) {
     return (
       <>
         <Header />
-        <main className="min-h-screen bg-background flex items-center justify-center">
+        <main className="min-h-screen flex items-center justify-center bg-background">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -86,24 +91,29 @@ export default function SessionPage() {
           >
             <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
             <h2 className="text-xl font-semibold text-foreground">{error}</h2>
-            <AnimatedButton onClick={() => (window.location.href = "/")}>Back to Home</AnimatedButton>
+            <AnimatedButton onClick={() => (window.location.href = "/")}>
+              Back to Home
+            </AnimatedButton>
           </motion.div>
         </main>
+        <Footer />
       </>
     )
   }
 
+  // --- Success State ---
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
             className="grid grid-cols-1 lg:grid-cols-3 gap-8"
           >
+            {/* Video + Session Info */}
             <div className="lg:col-span-2 space-y-6">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -119,7 +129,9 @@ export default function SessionPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="bg-card border border-border rounded-lg p-6"
               >
-                <h3 className="text-lg font-semibold text-foreground mb-4">Session Information</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-4">
+                  Session Information
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Session ID</p>
@@ -127,14 +139,21 @@ export default function SessionPage() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Status</p>
-                    <p className="text-green-600 font-semibold">{session.isActive ? "Active" : "Inactive"}</p>
+                    <p className="text-green-600 font-semibold">
+                      {session.isActive ? "Active" : "Inactive"}
+                    </p>
                   </div>
                 </div>
               </motion.div>
             </div>
 
+            {/* Sidebar */}
             <div className="space-y-6">
-              <SessionManager uniqueId={session.uniqueId} userUrl={session.userUrl} type={userType || "student"} />
+              <SessionManager
+                uniqueId={session.uniqueId}
+                userUrl={session.userUrl}
+                type={userType || "student"}
+              />
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -143,13 +162,20 @@ export default function SessionPage() {
                 className="bg-card border border-border rounded-lg p-6 space-y-4"
               >
                 <h3 className="font-semibold text-foreground">Quick Actions</h3>
-                <AnimatedButton variant="outline" className="w-full" onClick={() => (window.location.href = "/")}>
+                <AnimatedButton
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => (window.location.href = "/")}
+                >
                   Back to Home
                 </AnimatedButton>
               </motion.div>
             </div>
           </motion.div>
         </div>
+
+        {/* ✅ Footer at bottom */}
+        <Footer />
       </main>
     </>
   )
